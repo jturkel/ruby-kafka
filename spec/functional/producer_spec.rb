@@ -128,4 +128,14 @@ describe "Producer API", functional: true do
     expect(messages[3].value).to eq "hello4"
     expect(messages[3].headers).to eql({})
   end
+
+  example "writing a big message" do
+    value = 'a' * 98296
+    producer.produce(value, topic: topic, partition: 0)
+    producer.deliver_messages
+
+    message = kafka.fetch_messages(topic: topic, partition: 0, offset: :earliest).last
+
+    expect(message.value).to eq value
+  end
 end
